@@ -41,8 +41,8 @@ fun main(args: Array<String>) {
 
     if (args.size < 9) {
         println(
-            "Usage: [base_delivery_cost] [no_of_packges]\n" +
-                    "[pkg_id1] [pkg_weight1_in_kg] [distance1_in_km] [offer_code1] [no_of_vehicles] [max_speed] [max_carriable_weight]"
+            "Usage: [base_delivery_cost] [no_of_packages]\n" +
+                    "[pkg_id1] [pkg_weight1_in_kg] [distance1_in_km] [offer_code1] [no_of_vehicles] [max_speed] [max_allowed_weight]"
         )
         return
     }
@@ -80,10 +80,10 @@ fun main(args: Array<String>) {
     val timeCalculatedPackages =
         calculateDeliveryTime(costEstimatedPackages, noOfVehicles, maxSpeed, maxAllowedWeight)
 
+    println("[ID] [DISCOUNT] [DELIVERY COST] [DELIVERY TIME]")
     timeCalculatedPackages.forEach { pkg ->
         val decimalFormat = DecimalFormat("#.00")
         println("${pkg.id} ${pkg.offerDiscount} ${pkg.deliveryCost} ${decimalFormat.format(pkg.deliveredAt)}")
-//        println("${pkg.id} ${pkg.offerDiscount} ${pkg.deliveryCost} ${decimalFormat.format(pkg.deliveredAt)}")
     }
 
 }
@@ -130,14 +130,14 @@ fun createDeliverySets(packages: List<Package>, maxSum: Int): List<List<Package>
     val sets = mutableListOf<MutableList<Package>>()
 
     sortedPackages.forEach { pkg ->
-        val set = sets.find { it.sumOf { it.weight } + pkg.weight <= maxSum }
+        val set = sets.find { packageList -> (packageList.sumOf { it.weight } + pkg.weight) <= maxSum }
         if (set != null) {
             set.add(pkg)
         } else {
             sets.add(mutableListOf(pkg))
         }
     }
-    return sets.sortedByDescending { it.sumOf { it.weight } }
+    return sets.sortedByDescending { packageList -> packageList.sumOf { it.weight } }
 }
 
 /**
@@ -171,10 +171,10 @@ fun calculateDeliveryTime(
             val firstAvailableVehicleIndex =
                 vehicleTimer.indexOfFirst { it == firstAvailableVehicleTimer }
 
-            packageSetsToBeDelivered.first().forEach() {
+            packageSetsToBeDelivered.first().forEach {
                 it.timeTaken = BigDecimal(it.distance.toDouble() / maxSpeed).setScale(2, RoundingMode.FLOOR).toDouble()
                 it.deliveredAt = BigDecimal(firstAvailableVehicleTimer + it.timeTaken).setScale(2, RoundingMode.HALF_UP).toDouble()
-                println("Delivered ${it.id} at ${it.deliveredAt}")
+//                println("Delivered ${it.id} at ${it.deliveredAt}")
             }
             val farthestPackage = packageSetsToBeDelivered.first().maxBy { it.timeTaken }
             vehicleTimer[firstAvailableVehicleIndex] =
